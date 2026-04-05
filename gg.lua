@@ -3,7 +3,8 @@
 --                    dc: ktavex_
 -- ================================================================================
 
-local player = game.Players.LocalPlayer
+local Players = game:GetService("Players")
+local player  = Players.LocalPlayer or Players:FindFirstChildOfClass("Player")
 local rs     = game:GetService("RunService")
 
 -- ================================================================================
@@ -272,9 +273,10 @@ local function rebuildMenu()
     local subtitle = makeTxt(MX+MW/2, MY+26, "dc: ktavex_", C.textDim, 10, true)
     table.insert(drawings.frame, subtitle)
     
-    -- Resize indicator
-    table.insert(drawings.frame, makeRect(MX+MW-14, MY+MH-14, 10, 2, C.borderHi, true))
-    table.insert(drawings.frame, makeRect(MX+MW-10, MY+MH-10, 6, 2, C.borderHi, true))
+    -- Resize handle (3 lines, clearly visible)
+    table.insert(drawings.frame, makeRect(MX+MW-18, MY+MH-6,  14, 2, C.accentHi, true))
+    table.insert(drawings.frame, makeRect(MX+MW-12, MY+MH-11, 8,  2, C.accentHi, true))
+    table.insert(drawings.frame, makeRect(MX+MW-6,  MY+MH-16, 2,  12, C.accentHi, true))
     
     -- Tabs
     local TAB_W = MW / #TABS
@@ -736,7 +738,7 @@ local tabBuilders = { buildBoost, buildMacros, buildSettings }
 -- ================================================================================
 --              MOUSE HELPERS
 -- ================================================================================
-local mouse = game.Players.LocalPlayer:GetMouse()
+local mouse = player:GetMouse()
 local mouseX, mouseY = 0, 0
 
 local function updateMouse()
@@ -1073,14 +1075,15 @@ task.spawn(function()
                 state.menuW = math.max(state.minW, mouseX - state.menuX + state.resizeOffsetX)
                 state.menuH = math.max(state.minH, mouseY - state.menuY + state.resizeOffsetY)
             elseif mb1tap then
-                if inBox(mouseX, mouseY, MX, MY, MW, 38) then
-                    state.dragging = true
-                    state.dragOffsetX = mouseX - MX
-                    state.dragOffsetY = mouseY - MY
-                elseif inBox(mouseX, mouseY, MX+MW-20, MY+MH-20, 20, 20) then
+                -- Resize handle checked FIRST (priority over drag)
+                if inBox(mouseX, mouseY, MX+MW-24, MY+MH-24, 24, 24) then
                     state.resizing = true
                     state.resizeOffsetX = MX + MW - mouseX
                     state.resizeOffsetY = MY + MH - mouseY
+                elseif inBox(mouseX, mouseY, MX, MY, MW, 38) then
+                    state.dragging = true
+                    state.dragOffsetX = mouseX - MX
+                    state.dragOffsetY = mouseY - MY
                 end
             end
         else
